@@ -1,0 +1,154 @@
+{
+  "name": "trishuli",
+  "bbox": [
+    85.3,
+    28.14,
+    85.4,
+    28.29
+  ],
+  "event_utc": "2026-08-25 22:00:00",
+  "grid": {
+    "crs": "EPSG:32645",
+    "res_m": 10.0,
+    "w": 1005,
+    "h": 1676
+  },
+  "s1_pairs": [
+    {
+      "orbit": 85,
+      "state": "ascending",
+      "before_t": "2026-08-16 12:21:53.557589",
+      "after_t": "2026-08-28 12:21:54.261291",
+      "before_id": "S1D_IW_GRDH_1SDV_20260816T122141_20260816T122206_004151_007980_rtc",
+      "after_id": "S1D_IW_GRDH_1SDV_20260828T122141_20260828T122206_004326_007FA4_rtc"
+    },
+    {
+      "orbit": 121,
+      "state": "descending",
+      "before_t": "2026-08-19 00:10:49.388671",
+      "after_t": "2026-08-31 00:10:50.145681",
+      "before_id": "S1D_IW_GRDH_1SDV_20260819T001036_20260819T001101_004187_007ABD_rtc",
+      "after_id": "S1D_IW_GRDH_1SDV_20260831T001037_20260831T001102_004362_0080EC_rtc"
+    },
+    {
+      "orbit": 19,
+      "state": "descending",
+      "before_t": "2026-08-24 00:18:57.054676",
+      "after_t": "2026-09-05 00:18:57.330780",
+      "before_id": "S1D_IW_GRDH_1SDV_20260824T001844_20260824T001909_004260_007D5D_rtc",
+      "after_id": "S1D_IW_GRDH_1SDV_20260905T001844_20260905T001909_004435_00837B_rtc"
+    }
+  ],
+  "osm_snapshot": "2026-07-27",
+  "osm_counts": {
+    "buildings": 3074,
+    "roads": 389,
+    "bridges": 32,
+    "places": 25,
+    "hospitals": 1,
+    "water": 8,
+    "waterways": 83
+  },
+  "flood": {
+    "water_km2": 1.038,
+    "debris_km2": 0.728,
+    "analysable_km2": 41.271,
+    "hidden_all_orbits_km2": 2.254,
+    "unspider_slope_masked_km2": 168.222,
+    "permanent_water_km2": 0.341,
+    "pairs": 3,
+    "corridor_km2": 42.91,
+    "ai_flood_km2_all": 0.001,
+    "ai_flood_km2_corridor": 0.0,
+    "s2_new_water_km2": 2.213,
+    "s2_added_km2": 2.213
+  },
+  "method": "Space mode \u2014 \"Where did the flood hit?\" Sentinel-1 change detection after the UN-SPIDER Recommended Practice.",
+  "s2": {
+    "pre": "S2C_45RUM_20260812_0_L2A",
+    "post": "S2B_45RUM_20260827_0_L2A",
+    "pre_clear": 0.994,
+    "post_clear": 0.448,
+    "used": true,
+    "both_clear": 0.447
+  },
+  "detector": "AI U-Net (Kuro Siwo) within the 200 m river corridor + Sentinel-2 MNDWI new water where clear",
+  "debris_rule": {
+    "km2": 2.023,
+    "damage": {
+      "buildings": {
+        "total": 3074,
+        "hit": 431
+      },
+      "roads": {
+        "total": 389,
+        "hit": 63
+      },
+      "bridges": {
+        "total": 32,
+        "hit": 11
+      }
+    },
+    "cutoff": {
+      "CUT OFF": 23,
+      "longer route": 0,
+      "connected": 2,
+      "not connected before": 0
+    },
+    "note": "rule-based radar change (low confidence) plus Sentinel-2 vegetated-to-barren change where clear",
+    "radar_km2": 0.728,
+    "optical_km2": 1.349,
+    "both_km2": 0.053
+  },
+  "rescue": {
+    "cut_off_any": 21,
+    "nearest_landing_km": {
+      "Syabru Bensi": null,
+      "Goljung": null,
+      "Thuman": null,
+      "Timure": null,
+      "Chilime": null,
+      "Dalphedi": null,
+      "Pajung": null,
+      "Rasuwa Gadhi": null,
+      "Lingling": null,
+      "Aamachhodingmo": null,
+      "Bridhim": null,
+      "Bhrajam": null,
+      "Resuo": null,
+      "Brimdang": null,
+      "Khangjim": null,
+      "Bahun Danda": null,
+      "Bhanjyang": null,
+      "Sherpagaun": null,
+      "Nagthali": null,
+      "Surka": null,
+      "Dalgaun": null
+    }
+  },
+  "damage": {
+    "buildings": {
+      "total": 3074,
+      "hit": 54
+    },
+    "roads": {
+      "total": 389,
+      "hit": 76
+    },
+    "bridges": {
+      "total": 32,
+      "hit": 13
+    }
+  },
+  "cutoff": {
+    "destination": "hospital",
+    "counts": {
+      "CUT OFF": 23,
+      "longer route": 0,
+      "connected": 2,
+      "not connected before": 0
+    },
+    "removed_road_ids": 76
+  },
+  "runtime_s": 419.9
+}

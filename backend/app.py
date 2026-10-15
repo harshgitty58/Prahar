@@ -232,3 +232,65 @@ def scenario(body: PredictIn):
 def reload():
     load_all()
     return {"reloaded": True, "startup_ms": STATE["startup_ms"]}
+
+
+# ---------------- Space mode (Track B): run the satellite pipeline for any area + date ---------------------------
+import re  # noqa: E402
+import subprocess  # noqa: E402
+import sys  # noqa: E402
+import threading  # noqa: E402
+import uuid  # noqa: E402
+
+JOBS: dict = {}
+STAGES = [("grid", "Preparing the map grid"), ("S1 pairs", "Found Sentinel-1 before/after pairs"), ("S2:", "Sentinel-2 checked"),
+          ('"flood"', "Damage and cut-off computed"), ("Situation report", "Situation report written"), ("space_", "Published to the dashboard")]
+
+
+class SpaceRun(BaseModel):
+    bbox: list[float] = Field(..., min_length=4, max_length=4, description="W,S,E,N in WGS84")
+    date: str = Field(..., description="event time UTC, e.g. 2026-08-25 22:00")
+    name: str | None = None
+    res: float = Field(10.0, ge=10.0, le=30.0)
+
+
+def _space_job(jid: str, req: SpaceRun):
+    j = JOBS[jid]
+    log = RESULTS / "space" / f"{j['name']}_run.log"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    cmds = [[sys.executable, "-u", "-m", "src.space.run", "--name", j["name"], "--bbox", ",".join(map(str, req.bbox)), "--date", req.date, "--res", str(req.res)],
+            [sys.executable, "-m", "src.space.report", "--name", j["name"]],
+            [sys.executable, "scripts/export_space.py", "--name", j["name"]]]
+    with open(log, "w", encoding="utf-8") as fh:
+        for c in cmds:
+            r = subprocess.run(c, cwd=ROOT, stdout=fh, stderr=subprocess.STDOUT, env={**__import__("os").environ, "PYTHONIOENCODING": "utf-8"})
+            if r.returncode != 0:
+                j.update(status="failed", finished=time.time())
+                return
+    for p in DATA.glob("space*.json"):
+        STATE["blobs"][p.stem] = _blob(p)
+    j.update(status="done", finished=time.time())
+
+
+@app.post("/space/run")
+def space_run(req: SpaceRun):
+    w, s, e, n = req.bbox
+    if not (w < e and s < n) or (e - w) * (n - s) > 0.06:
+        raise HTTPException(422, "bbox must be W<E, S<N and at most ~0.06 deg² (about 600 km²) for a live run")
+    name = re.sub(r"[^a-z0-9_]", "_", (req.name or f"run_{req.date[:10]}_{w:.2f}_{s:.2f}").lower())[:48]
+    if any(j["status"] == "running" for j in JOBS.values()):
+        raise HTTPException(429, "a Space-mode run is already in progress")
+    jid = uuid.uuid4().hex[:10]
+    JOBS[jid] = {"id": jid, "name": name, "status": "running", "started": time.time()}
+    threading.Thread(target=_space_job, args=(jid, req), daemon=True).start()
+    return JOBS[jid]
+
+
+@app.get("/space/jobs/{jid}")
+def space_job(jid: str):
+    j = JOBS.get(jid)
+    if not j:
+        raise HTTPException(404, "unknown job")
+    log = RESULTS / "space" / f"{j['name']}_run.log"
+    txt = log.read_text(encoding="utf-8", errors="replace") if log.exists() else ""
+    done = [label for key, label in STAGES if key in txt]
+    return j | {"elapsed_s": round((j.get("finished") or time.time()) - j["started"]), "stages": done, "log_tail": txt.splitlines()[-6:]}

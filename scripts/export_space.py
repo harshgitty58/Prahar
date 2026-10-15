@@ -1,4 +1,4 @@
-"""Export Space-mode results (results/space/<name>/) for the web app → web/public/data/space.json (+ map image).
+"""Export Space-mode results (results/space/<name>/) for the web app → web/public/data/space_<name>.json + space_index.json (+ map image).
 
 The backend serves it at /data/space like every other exported JSON. Flood/permanent-water pixels are vectorised
 (simplified 10 m) and reprojected to WGS84; only hit buildings are exported (all roads/bridges keep their hit flag).
@@ -14,6 +14,8 @@ import rasterio
 from rasterio.features import shapes
 from rasterio.warp import transform_geom
 from shapely.geometry import mapping, shape
+
+from flowdir import flowdir
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -36,10 +38,10 @@ def polygons(tif: Path, classes: dict) -> dict:
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--name", default="dharali"); n = ap.parse_args().name
     d = ROOT / "results/space" / n
-    s = json.loads((d / "summary.json").read_text())
+    s = json.loads((d / "summary.json").read_text(encoding="utf-8"))
     meta_p = ROOT / "models/space/floodseg_meta.json"
-    meta = json.loads(meta_p.read_text()) if meta_p.exists() else {}
-    load = lambda f: json.loads((d / f).read_text())  # noqa: E731
+    meta = json.loads(meta_p.read_text(encoding="utf-8")) if meta_p.exists() else {}
+    load = lambda f: json.loads((d / f).read_text(encoding="utf-8"))  # noqa: E731
     b = load("buildings_hit.geojson"); b["features"] = [f for f in b["features"] if f["properties"]["hit"]]
     out = {"name": n, "event_utc": s["event_utc"], "bbox": s["bbox"], "detector": s.get("detector"), "osm_snapshot": s["osm_snapshot"],
            "s1_pairs": s["s1_pairs"], "flood": s["flood"], "damage": s["damage"], "cutoff": load("cutoff.json"),
@@ -51,14 +53,25 @@ def main():
                        "buildings_hit": {"type": "FeatureCollection", "features": [f for f in load("buildings_debris.geojson")["features"] if f["properties"]["hit"]]},
                        "roads": {"type": "FeatureCollection", "features": [f for f in load("roads_debris.geojson")["features"] if f["properties"]["hit"]]}}
                       if (d / "debris_class.tif").exists() else None),
-           "sitrep": (d / "sitrep.md").read_text(encoding="utf-8") if (d / "sitrep.md").exists() else ""}
+           "sitrep": (d / "sitrep.md").read_text(encoding="utf-8") if (d / "sitrep.md").exists() else "",
+           "s2": s.get("s2"), "runtime_s": s.get("runtime_s"),
+           "rescue": load("rescue.json") if (d / "rescue.json").exists() else None,
+           "emsr_check": load("emsr_check.json") if (d / "emsr_check.json").exists() else None,
+           "flowdir": flowdir(d / "dem.tif") if (d / "dem.tif").exists() else None,
+           "debris_conf": polygons(d / "debris_conf.tif", {3: "radar + optical"}) if (d / "debris_conf.tif").exists() else None}
     web = ROOT / "web/public/data"
-    (web / "space.json").write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
+    (web / f"space_{n}.json").write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
+    idx_p = web / "space_index.json"
+    idx = [e for e in (json.loads(idx_p.read_text(encoding="utf-8")) if idx_p.exists() else []) if e["name"] != n]
+    idx.append({"name": n, "event_utc": s["event_utc"], "bbox": s["bbox"], "checked": out["emsr_check"] is not None})
+    idx_p.write_text(json.dumps(sorted(idx, key=lambda e: e["event_utc"], reverse=True)), encoding="utf-8")
     img = ROOT / "web/public/img/space"; img.mkdir(parents=True, exist_ok=True)
     if (d / "map.png").exists():
         shutil.copy(d / "map.png", img / f"{n}.png")
+    if (d / "emsr_check.png").exists():
+        shutil.copy(d / "emsr_check.png", img / f"{n}_emsr.png")
     print(f"space.json: {len(out['layers']['flood']['features'])} flood polygons, {len(b['features'])} hit buildings, "
-          f"{(web / 'space.json').stat().st_size // 1024} KB")
+          f"space_{n}.json {(web / f'space_{n}.json').stat().st_size // 1024} KB")
 
 
 if __name__ == "__main__":

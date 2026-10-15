@@ -1,0 +1,262 @@
+{
+  "destination": "hospital",
+  "settlements": [
+    {
+      "name": "Syabru Bensi",
+      "place": "suburb",
+      "lon": 85.33725,
+      "lat": 28.16367,
+      "snap_m": 18,
+      "before_km": 8.14,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Bahun Danda",
+      "place": "hamlet",
+      "lon": 85.32194,
+      "lat": 28.16655,
+      "snap_m": 9,
+      "before_km": 11.19,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Rasuwa Gadhi",
+      "place": "hamlet",
+      "lon": 85.37778,
+      "lat": 28.27777,
+      "snap_m": 39,
+      "before_km": 21.84,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Sherpagaun",
+      "place": "hamlet",
+      "lon": 85.39705,
+      "lat": 28.1625,
+      "snap_m": 6,
+      "before_km": 16.46,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Timure",
+      "place": "suburb",
+      "lon": 85.36667,
+      "lat": 28.25285,
+      "snap_m": 13,
+      "before_km": 18.78,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Thuman",
+      "place": "suburb",
+      "lon": 85.33817,
+      "lat": 28.21026,
+      "snap_m": 21,
+      "before_km": 22.26,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Nagthali",
+      "place": "hamlet",
+      "lon": 85.31583,
+      "lat": 28.2079,
+      "snap_m": 12,
+      "before_km": 25.42,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Lingling",
+      "place": "hamlet",
+      "lon": 85.3577,
+      "lat": 28.21085,
+      "snap_m": 19,
+      "before_km": 13.64,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Brimdang",
+      "place": "hamlet",
+      "lon": 85.30989,
+      "lat": 28.20364,
+      "snap_m": 19,
+      "before_km": 27.17,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Brabal",
+      "place": "village",
+      "lon": 85.33916,
+      "lat": 28.14357,
+      "snap_m": 42,
+      "before_km": 0.49,
+      "after_km": 0.49,
+      "status": "connected"
+    },
+    {
+      "name": "Khangjim",
+      "place": "hamlet",
+      "lon": 85.35914,
+      "lat": 28.17681,
+      "snap_m": 28,
+      "before_km": 11.07,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Dalphedi",
+      "place": "hamlet",
+      "lon": 85.35316,
+      "lat": 28.22901,
+      "snap_m": 33,
+      "before_km": 18.69,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Dalgaun",
+      "place": "hamlet",
+      "lon": 85.34215,
+      "lat": 28.25576,
+      "snap_m": 2033,
+      "before_km": 19.72,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Goljung",
+      "place": "suburb",
+      "lon": 85.31589,
+      "lat": 28.17002,
+      "snap_m": 47,
+      "before_km": 14.25,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": null,
+      "place": "village",
+      "lon": 85.31082,
+      "lat": 28.19377,
+      "snap_m": 122,
+      "before_km": 16.85,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Bhrajam",
+      "place": "hamlet",
+      "lon": 85.31696,
+      "lat": 28.18774,
+      "snap_m": 22,
+      "before_km": 14.95,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Thulo Sy\u0101bru",
+      "place": "hamlet",
+      "lon": 85.36069,
+      "lat": 28.14304,
+      "snap_m": 8,
+      "before_km": 3.85,
+      "after_km": 3.85,
+      "status": "connected"
+    },
+    {
+      "name": null,
+      "place": "hamlet",
+      "lon": 85.34605,
+      "lat": 28.17678,
+      "snap_m": 26,
+      "before_km": 9.05,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Bridhim",
+      "place": "suburb",
+      "lon": 85.36695,
+      "lat": 28.1995,
+      "snap_m": 40,
+      "before_km": 13.58,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Resuo",
+      "place": "village",
+      "lon": 85.37822,
+      "lat": 28.28032,
+      "snap_m": 26,
+      "before_km": 22.2,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Pajung",
+      "place": "hamlet",
+      "lon": 85.32756,
+      "lat": 28.18603,
+      "snap_m": 70,
+      "before_km": 13.78,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Bhanjyang",
+      "place": "hamlet",
+      "lon": 85.3552,
+      "lat": 28.16862,
+      "snap_m": 7,
+      "before_km": 10.69,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Surka",
+      "place": "hamlet",
+      "lon": 85.36193,
+      "lat": 28.17107,
+      "snap_m": 22,
+      "before_km": 11.84,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Aamachhodingmo",
+      "place": "village",
+      "lon": 85.31309,
+      "lat": 28.17058,
+      "snap_m": 76,
+      "before_km": 14.57,
+      "after_km": null,
+      "status": "CUT OFF"
+    },
+    {
+      "name": "Chilime",
+      "place": "suburb",
+      "lon": 85.30224,
+      "lat": 28.18362,
+      "snap_m": 10,
+      "before_km": 15.15,
+      "after_km": null,
+      "status": "CUT OFF"
+    }
+  ],
+  "removed_road_ids": 65,
+  "counts": {
+    "CUT OFF": 23,
+    "longer route": 0,
+    "connected": 2,
+    "not connected before": 0
+  }
+}

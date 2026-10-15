@@ -7,6 +7,9 @@ Sources (all keyless):
   OpenStreetMap before the event  — ohsome API (snapshot timestamp before the event; latest available is used if later)
 """
 import math
+from pathlib import Path
+import hashlib
+import time
 from dataclasses import dataclass
 
 import numpy as np
@@ -74,11 +77,35 @@ def s1_pairs(bbox, event: pd.Timestamp, max_gap_days=12, window_days=24) -> list
     return sorted(pairs, key=lambda p: pd.Timestamp(p["after_t"]))
 
 
+_SAS: dict = {}
+CACHE = Path(__file__).resolve().parents[2] / "results/space/_cache"
+
+
+def _sas(collection: str) -> str:
+    """Keyless Planetary Computer SAS token, reused while valid (fetching one per image gets rate-limited)."""
+    tok, t = _SAS.get(collection, (None, 0.0))
+    if tok and time.time() - t < 40 * 60:
+        return tok
+    for wait in (0, 5, 15, 30, 60):
+        time.sleep(wait)
+        r = requests.get(PC_SAS.format(collection=collection), timeout=60)
+        if r.ok and "token" in r.json():
+            _SAS[collection] = (r.json()["token"], time.time())
+            return _SAS[collection][0]
+    raise RuntimeError(f"Planetary Computer SAS token unavailable ({r.status_code})")
+
+
 def s1_db(item: dict, grid: Grid, pol="vh") -> np.ndarray:
-    tok = requests.get(PC_SAS.format(collection="sentinel-1-rtc"), timeout=60).json()["token"]
-    lin = _warp(f"{item['assets'][pol]['href']}?{tok}", grid)
+    """Sentinel-1 RTC backscatter in dB on the grid; cached on disk per image/polarisation/grid (fast re-runs)."""
+    key = CACHE / f"{item['id']}_{pol}_{hashlib.md5(repr((grid.crs, tuple(grid.transform), grid.width, grid.height)).encode()).hexdigest()[:10]}.npy"
+    if key.exists():
+        return np.load(key)
+    lin = _warp(f"{item['assets'][pol]['href']}?{_sas('sentinel-1-rtc')}", grid)
     with np.errstate(divide="ignore", invalid="ignore"):
-        return np.where(lin > 0, 10 * np.log10(lin), np.nan).astype("float32")
+        db = np.where(lin > 0, 10 * np.log10(lin), np.nan).astype("float32")
+    CACHE.mkdir(parents=True, exist_ok=True)
+    np.save(key, db)
+    return db
 
 
 # ------------------------------------------------------------------ Sentinel-2

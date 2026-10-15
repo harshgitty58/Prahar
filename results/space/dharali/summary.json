@@ -51,48 +51,34 @@
     "pairs": 2,
     "corridor_km2": 70.076,
     "ai_flood_km2_all": 2.136,
-    "ai_flood_km2_corridor": 0.735
+    "ai_flood_km2_corridor": 0.735,
+    "s2_new_water_km2": 2.046,
+    "s2_added_km2": 2.036
   },
   "method": "Space mode \u2014 \"Where did the flood hit?\" Sentinel-1 change detection after the UN-SPIDER Recommended Practice.",
-  "detector": "AI U-Net (Kuro Siwo) within the 200 m river corridor",
-  "damage": {
-    "buildings": {
-      "total": 502,
-      "hit": 0
-    },
-    "roads": {
-      "total": 112,
-      "hit": 0
-    },
-    "bridges": {
-      "total": 16,
-      "hit": 0
-    }
+  "s2": {
+    "pre": "S2A_44RKV_20250706_0_L2A",
+    "post": "S2C_44RKV_20250813_0_L2A",
+    "pre_clear": 0.946,
+    "post_clear": 0.423,
+    "used": true,
+    "both_clear": 0.398
   },
-  "cutoff": {
-    "destination": "AOI exit",
-    "counts": {
-      "CUT OFF": 0,
-      "longer route": 0,
-      "connected": 10,
-      "not connected before": 4
-    },
-    "removed_road_ids": 0
-  },
+  "detector": "AI U-Net (Kuro Siwo) within the 200 m river corridor + Sentinel-2 MNDWI new water where clear",
   "debris_rule": {
-    "km2": 4.771,
+    "km2": 4.828,
     "damage": {
       "buildings": {
         "total": 502,
-        "hit": 47
+        "hit": 53
       },
       "roads": {
         "total": 112,
-        "hit": 23
+        "hit": 27
       },
       "bridges": {
         "total": 16,
-        "hit": 1
+        "hit": 2
       }
     },
     "cutoff": {
@@ -101,6 +87,45 @@
       "connected": 4,
       "not connected before": 4
     },
-    "note": "low confidence: rule-based radar change, not validated"
-  }
+    "note": "rule-based radar change (low confidence) plus Sentinel-2 vegetated-to-barren change where clear",
+    "radar_km2": 4.771,
+    "optical_km2": 0.058,
+    "both_km2": 0.001
+  },
+  "rescue": {
+    "cut_off_any": 6,
+    "nearest_landing_km": {
+      "Harsil": 1.25,
+      "Halunga": 0.85,
+      "Bagori": 0.37,
+      "Lanka": 9.6,
+      "Bhaironghati": 9.9,
+      "Dhakroliya": 0.29
+    }
+  },
+  "damage": {
+    "buildings": {
+      "total": 502,
+      "hit": 7
+    },
+    "roads": {
+      "total": 112,
+      "hit": 22
+    },
+    "bridges": {
+      "total": 16,
+      "hit": 4
+    }
+  },
+  "cutoff": {
+    "destination": "AOI exit",
+    "counts": {
+      "CUT OFF": 5,
+      "longer route": 0,
+      "connected": 5,
+      "not connected before": 4
+    },
+    "removed_road_ids": 22
+  },
+  "runtime_s": 483.2
 }

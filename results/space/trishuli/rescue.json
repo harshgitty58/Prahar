@@ -1,0 +1,257 @@
+{
+  "rule": "ICAO Annex 14 Vol II: FATO mean slope <= 3 %, local <= 5 %, side >= 1.5 x D (ALH Dhruv) -> 30 m",
+  "settlements": [
+    {
+      "name": "Syabru Bensi",
+      "place": "suburb",
+      "lon": 85.33725,
+      "lat": 28.16367,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 404,
+      "landing_sites": []
+    },
+    {
+      "name": "Goljung",
+      "place": "suburb",
+      "lon": 85.31589,
+      "lat": 28.17002,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 277,
+      "landing_sites": []
+    },
+    {
+      "name": "Thuman",
+      "place": "suburb",
+      "lon": 85.33817,
+      "lat": 28.21026,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 265,
+      "landing_sites": []
+    },
+    {
+      "name": "Timure",
+      "place": "suburb",
+      "lon": 85.36667,
+      "lat": 28.25285,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 263,
+      "landing_sites": []
+    },
+    {
+      "name": "Chilime",
+      "place": "suburb",
+      "lon": 85.30224,
+      "lat": 28.18362,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 166,
+      "landing_sites": []
+    },
+    {
+      "name": "Dalphedi",
+      "place": "hamlet",
+      "lon": 85.35316,
+      "lat": 28.22901,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 165,
+      "landing_sites": []
+    },
+    {
+      "name": "Pajung",
+      "place": "hamlet",
+      "lon": 85.32756,
+      "lat": 28.18603,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 158,
+      "landing_sites": []
+    },
+    {
+      "name": "Rasuwa Gadhi",
+      "place": "hamlet",
+      "lon": 85.37778,
+      "lat": 28.27777,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 148,
+      "landing_sites": []
+    },
+    {
+      "name": "Lingling",
+      "place": "hamlet",
+      "lon": 85.3577,
+      "lat": 28.21085,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 142,
+      "landing_sites": []
+    },
+    {
+      "name": "Aamachhodingmo",
+      "place": "village",
+      "lon": 85.31309,
+      "lat": 28.17058,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 135,
+      "landing_sites": []
+    },
+    {
+      "name": "Bridhim",
+      "place": "suburb",
+      "lon": 85.36695,
+      "lat": 28.1995,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 132,
+      "landing_sites": []
+    },
+    {
+      "name": "Bhrajam",
+      "place": "hamlet",
+      "lon": 85.31696,
+      "lat": 28.18774,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 97,
+      "landing_sites": []
+    },
+    {
+      "name": "Resuo",
+      "place": "village",
+      "lon": 85.37822,
+      "lat": 28.28032,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 60,
+      "landing_sites": []
+    },
+    {
+      "name": "Brimdang",
+      "place": "hamlet",
+      "lon": 85.30989,
+      "lat": 28.20364,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 51,
+      "landing_sites": []
+    },
+    {
+      "name": "Khangjim",
+      "place": "hamlet",
+      "lon": 85.35914,
+      "lat": 28.17681,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 51,
+      "landing_sites": []
+    },
+    {
+      "name": "Bahun Danda",
+      "place": "hamlet",
+      "lon": 85.32194,
+      "lat": 28.16655,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 41,
+      "landing_sites": []
+    },
+    {
+      "name": "Bhanjyang",
+      "place": "hamlet",
+      "lon": 85.3552,
+      "lat": 28.16862,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 41,
+      "landing_sites": []
+    },
+    {
+      "name": "Sherpagaun",
+      "place": "hamlet",
+      "lon": 85.39705,
+      "lat": 28.1625,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 38,
+      "landing_sites": []
+    },
+    {
+      "name": "Nagthali",
+      "place": "hamlet",
+      "lon": 85.31583,
+      "lat": 28.2079,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 21,
+      "landing_sites": []
+    },
+    {
+      "name": "Surka",
+      "place": "hamlet",
+      "lon": 85.36193,
+      "lat": 28.17107,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 15,
+      "landing_sites": []
+    },
+    {
+      "name": "Dalgaun",
+      "place": "hamlet",
+      "lon": 85.34215,
+      "lat": 28.25576,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 0,
+      "landing_sites": []
+    }
+  ]
+}

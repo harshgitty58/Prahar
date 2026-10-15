@@ -1,0 +1,190 @@
+{
+  "rule": "ICAO Annex 14 Vol II: FATO mean slope <= 3 %, local <= 5 %, side >= 1.5 x D (ALH Dhruv) -> 30 m",
+  "settlements": [
+    {
+      "name": "Harsil",
+      "place": "village",
+      "lon": 78.75065,
+      "lat": 31.03691,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 120,
+      "landing_sites": [
+        {
+          "lon": 78.73781,
+          "lat": 31.0392,
+          "dist_km": 1.25,
+          "flat_m2": 300
+        },
+        {
+          "lon": 78.73302,
+          "lat": 31.03781,
+          "dist_km": 1.69,
+          "flat_m2": 200
+        },
+        {
+          "lon": 78.73281,
+          "lat": 31.03845,
+          "dist_km": 1.71,
+          "flat_m2": 700
+        }
+      ]
+    },
+    {
+      "name": "Halunga",
+      "place": "hamlet",
+      "lon": 78.74367,
+      "lat": 31.03344,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 45,
+      "landing_sites": [
+        {
+          "lon": 78.73781,
+          "lat": 31.0392,
+          "dist_km": 0.85,
+          "flat_m2": 300
+        },
+        {
+          "lon": 78.73302,
+          "lat": 31.03781,
+          "dist_km": 1.13,
+          "flat_m2": 200
+        },
+        {
+          "lon": 78.73273,
+          "lat": 31.03761,
+          "dist_km": 1.14,
+          "flat_m2": 600
+        }
+      ]
+    },
+    {
+      "name": "Bagori",
+      "place": "village",
+      "lon": 78.74169,
+      "lat": 31.03959,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 32,
+      "landing_sites": [
+        {
+          "lon": 78.73781,
+          "lat": 31.0392,
+          "dist_km": 0.37,
+          "flat_m2": 300
+        },
+        {
+          "lon": 78.73302,
+          "lat": 31.03781,
+          "dist_km": 0.85,
+          "flat_m2": 200
+        },
+        {
+          "lon": 78.73281,
+          "lat": 31.03845,
+          "dist_km": 0.86,
+          "flat_m2": 700
+        }
+      ]
+    },
+    {
+      "name": "Lanka",
+      "place": "village",
+      "lon": 78.86798,
+      "lat": 31.03024,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 22,
+      "landing_sites": [
+        {
+          "lon": 78.80244,
+          "lat": 31.09597,
+          "dist_km": 9.6,
+          "flat_m2": 200
+        },
+        {
+          "lon": 78.77804,
+          "lat": 30.98183,
+          "dist_km": 10.13,
+          "flat_m2": 1600
+        },
+        {
+          "lon": 78.73781,
+          "lat": 31.0392,
+          "dist_km": 12.47,
+          "flat_m2": 300
+        }
+      ]
+    },
+    {
+      "name": "Bhaironghati",
+      "place": "hamlet",
+      "lon": 78.86788,
+      "lat": 31.02672,
+      "by": [
+        "water",
+        "debris"
+      ],
+      "buildings": 18,
+      "landing_sites": [
+        {
+          "lon": 78.80244,
+          "lat": 31.09597,
+          "dist_km": 9.9,
+          "flat_m2": 200
+        },
+        {
+          "lon": 78.77804,
+          "lat": 30.98183,
+          "dist_km": 9.92,
+          "flat_m2": 1600
+        },
+        {
+          "lon": 78.73781,
+          "lat": 31.0392,
+          "dist_km": 12.5,
+          "flat_m2": 300
+        }
+      ]
+    },
+    {
+      "name": "Dhakroliya",
+      "place": "hamlet",
+      "lon": 78.73124,
+      "lat": 31.03492,
+      "by": [
+        "debris"
+      ],
+      "buildings": 14,
+      "landing_sites": [
+        {
+          "lon": 78.72991,
+          "lat": 31.03732,
+          "dist_km": 0.29,
+          "flat_m2": 600
+        },
+        {
+          "lon": 78.73273,
+          "lat": 31.03761,
+          "dist_km": 0.33,
+          "flat_m2": 600
+        },
+        {
+          "lon": 78.73186,
+          "lat": 31.0381,
+          "dist_km": 0.36,
+          "flat_m2": 100
+        }
+      ]
+    }
+  ]
+}

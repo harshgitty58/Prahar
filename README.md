@@ -58,11 +58,24 @@ A decision-support prototype. It gives estimates of hazard and exposure with sta
 ## Track B: Space mode (Mapping Flood Damage from Space)
 Satellite-only damage mapping for **any area and date**. It uses only the inputs Track B allows: Sentinel-1/2, Copernicus DEM GLO-30, pre-event OSM via ohsome, and Kuro Siwo for training. Full write-up: `TRACKB_REPORT.md`.
 ```bash
-pip install rasterio onnxruntime networkx scipy requests pandas
+pip install rasterio onnxruntime networkx scipy requests pandas shapely matplotlib
 # put the trained model in models/space/ (floodseg.onnx + floodseg_meta.json); train it with notebooks/trackB_train_floodseg_colab.ipynb
 python -m src.space.run    --name dharali --bbox 78.70,30.98,78.90,31.10 --date "2025-08-05 08:15"   # UTC
 python -m src.space.report --name dharali     # one-page sitrep: results/space/dharali/sitrep.md / .html
+python scripts/export_space.py --name dharali # dashboard data: web/public/data/space_dharali.json + space_index.json
+# Trishuli GLOF case study, checked against Copernicus EMS EMSR927 (vectors used ONLY for checking):
+python -m src.space.run --name trishuli --bbox 85.30,28.14,85.40,28.29 --date "2026-08-25 22:00"
+python scripts/check_emsr.py --name trishuli --emsr data/external/emsr927 --aois 1,2
 ```
+Live runs from the dashboard: start the API (`uvicorn backend.app:app`) and set `VITE_API_URL`. The Space page's "Map any flood" box then calls `POST /space/run` and polls `GET /space/jobs/{id}`.
+
+What each run adds on top of the flood map:
+- Sentinel-2 fusion where the sky is clear (MNDWI new water; vegetated → barren debris);
+- rescue priorities (buildings per cut-off settlement);
+- helicopter landing candidates (ICAO Annex 14 slope limits);
+- a flood-path tracer (D8 on the Copernicus DEM);
+- Hindi and Nepali sitrep summaries;
+- run timing.
 Outputs in `results/space/<name>/`:
 - flood map (AI and rule baseline GeoTIFFs);
 - hit buildings, roads and bridges (GeoJSON);
