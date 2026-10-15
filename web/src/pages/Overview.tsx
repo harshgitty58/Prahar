@@ -3,6 +3,7 @@ import type { Basemap } from '../components/FloodMap'
 import { Link } from 'react-router-dom'
 import { Area, AreaChart, ReferenceLine, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import FloodMap from '../components/FloodMap'
+import TrackBCard from '../components/TrackBCard'
 import StationDrawer from '../components/StationDrawer'
 import { BasemapSwitch, Bar, Panel, Stat, TierBadge } from '../components/ui'
 import { pct, pretty, TIER_COLOR, useData, type Impact, type ModelData, type Snapshot, type Station, type TimelinePt } from '../lib/data'
@@ -30,6 +31,7 @@ export default function Overview() {
 
   return (
     <div className="grid gap-4 p-4 xl:grid-cols-[360px_1fr]">
+      <div className="xl:col-span-2"><TrackBCard compact /></div>
       <div className="space-y-4">
         <Panel>
           <div className="label">Current regional risk · peak station</div>

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import TrackBCard from '../components/TrackBCard'
 import { fmtTime, pct, pretty, TIER_COLOR, useData, type ModelData, type Snapshot } from '../lib/data'
 
 const CHAIN = [
@@ -96,6 +97,9 @@ export default function Landing() {
           </div>
         )}
       </section>
+
+      {/* TRACK B headline result */}
+      <section id="trackb" className="mx-auto max-w-6xl px-6 py-16"><TrackBCard /></section>
 
       {/* CHAIN */}
       <Band img="real-rudraprayag-2013"><section id="how" className="mx-auto max-w-6xl px-6 py-28">

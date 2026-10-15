@@ -262,9 +262,9 @@ def _space_job(jid: str, req: SpaceRun):
             [sys.executable, "scripts/export_space.py", "--name", j["name"]]]
     with open(log, "w", encoding="utf-8") as fh:
         for c in cmds:
-            r = subprocess.run(c, cwd=ROOT, stdout=fh, stderr=subprocess.STDOUT, env={**__import__("os").environ, "PYTHONIOENCODING": "utf-8"})
-            if r.returncode != 0:
-                j.update(status="failed", finished=time.time())
+            j["proc"] = subprocess.Popen(c, cwd=ROOT, stdout=fh, stderr=subprocess.STDOUT, env={**__import__("os").environ, "PYTHONIOENCODING": "utf-8"})
+            if j["proc"].wait() != 0 or j["status"] == "cancelled":
+                j.update(status="cancelled" if j["status"] == "cancelled" else "failed", finished=time.time())
                 return
     for p in DATA.glob("space*.json"):
         STATE["blobs"][p.stem] = _blob(p)
@@ -282,7 +282,85 @@ def space_run(req: SpaceRun):
     jid = uuid.uuid4().hex[:10]
     JOBS[jid] = {"id": jid, "name": name, "status": "running", "started": time.time()}
     threading.Thread(target=_space_job, args=(jid, req), daemon=True).start()
-    return JOBS[jid]
+    return _pub(JOBS[jid])
+
+
+def _pub(j: dict) -> dict:
+    return {k: v for k, v in j.items() if k != "proc"}
+
+
+@app.get("/space/jobs")
+def space_jobs():
+    return [_pub(j) for j in JOBS.values()]
+
+
+@app.post("/space/jobs/{jid}/cancel")
+def space_cancel(jid: str):
+    j = JOBS.get(jid)
+    if not j:
+        raise HTTPException(404, "unknown job")
+    if j["status"] == "running":
+        j["status"] = "cancelled"
+        if j.get("proc"):
+            j["proc"].kill()
+    return _pub(j)
+
+
+@app.get("/space/check")
+def space_check(bbox: str, date: str):
+    """Fast pre-check (catalogue search only): are there same-orbit Sentinel-1 before/after pairs for this area and date?"""
+    from src.space import data as sdata
+    try:
+        b = tuple(float(v) for v in bbox.split(","))
+        pairs = sdata.s1_pairs(b, pd.Timestamp(date))
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(422, f"bad input or catalogue unavailable: {type(e).__name__}")
+    return {"ok": bool(pairs), "pairs": [{k: p[k] for k in ("orbit", "state", "before_t", "after_t")} for p in pairs],
+            "message": None if pairs else "No same-orbit Sentinel-1 pair within 12 days after the event: try a later date or a larger area."}
+
+
+@app.get("/space/events")
+def space_events(request: Request):
+    return send(blob_or_404("space_index"), request)
+
+
+SITREP_LOCAL = {"hi": "## हिन्दी", "ne": "## नेपाली"}
+
+
+@app.get("/space/{name}/sitrep")
+def space_sitrep(name: str, lang: str = "en", fmt: str = "md"):
+    p = RESULTS / "space" / re.sub(r"[^a-z0-9_]", "", name) / "sitrep.md"
+    if not p.exists():
+        raise HTTPException(404, "no sitrep for this event")
+    parts = re.split(r"\n(?=## )", p.read_text(encoding="utf-8"))
+    local = lambda x: any(x.startswith(h) for h in SITREP_LOCAL.values())  # noqa: E731
+    if lang in SITREP_LOCAL:
+        parts = [parts[0].split("\n")[0], ""] + [x for x in parts if x.startswith(SITREP_LOCAL[lang])]
+    else:
+        parts = [x for x in parts if not local(x)]
+    md = "\n".join(parts)
+    if fmt != "html":
+        return Response(md, media_type="text/markdown; charset=utf-8")
+    import html as _h
+    body = "".join(f"<h2>{_h.escape(x[3:])}</h2>" if x.startswith("## ") else f"<h1>{_h.escape(x[2:])}</h1>" if x.startswith("# ")
+                   else f"<li>{_h.escape(x[2:])}</li>" if x.startswith("- ") else f"<p>{_h.escape(x)}</p>" if x else "" for x in md.split("\n")).replace("**", "")
+    return Response(f"<!doctype html><meta charset=utf-8><title>PRAHAR sitrep {name}</title><style>body{{font:13px/1.45 system-ui;max-width:760px;margin:20px auto}}h1{{font-size:18px}}h2{{font-size:14px;border-bottom:1px solid #ccc}}</style>{body}",
+                    media_type="text/html; charset=utf-8")
+
+
+@app.get("/space/{name}/layers.zip")
+def space_layers(name: str):
+    import io
+    import zipfile
+    d = RESULTS / "space" / re.sub(r"[^a-z0-9_]", "", name)
+    if not (d / "summary.json").exists():
+        raise HTTPException(404, "unknown event")
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+        for f in sorted(d.iterdir()):
+            if f.suffix in (".geojson", ".tif", ".json", ".md", ".html", ".png") and f.name not in ("osm_before.json", "dem.tif"):
+                z.write(f, f.name)
+    return Response(buf.getvalue(), media_type="application/zip", headers={"Content-Disposition": f'attachment; filename="{d.name}_prahar_layers.zip"'})
 
 
 @app.get("/space/jobs/{jid}")
@@ -293,4 +371,4 @@ def space_job(jid: str):
     log = RESULTS / "space" / f"{j['name']}_run.log"
     txt = log.read_text(encoding="utf-8", errors="replace") if log.exists() else ""
     done = [label for key, label in STAGES if key in txt]
-    return j | {"elapsed_s": round((j.get("finished") or time.time()) - j["started"]), "stages": done, "log_tail": txt.splitlines()[-6:]}
+    return _pub(j) | {"elapsed_s": round((j.get("finished") or time.time()) - j["started"]), "stages": done, "log_tail": txt.splitlines()[-6:]}

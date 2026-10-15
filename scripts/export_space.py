@@ -16,6 +16,7 @@ from rasterio.warp import transform_geom
 from shapely.geometry import mapping, shape
 
 from flowdir import flowdir
+from s2_thumbs import thumbs
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -57,6 +58,7 @@ def main():
            "s2": s.get("s2"), "runtime_s": s.get("runtime_s"),
            "rescue": load("rescue.json") if (d / "rescue.json").exists() else None,
            "emsr_check": load("emsr_check.json") if (d / "emsr_check.json").exists() else None,
+           "s2_images": thumbs(n, s.get("s2"), s["bbox"]),
            "flowdir": flowdir(d / "dem.tif") if (d / "dem.tif").exists() else None,
            "debris_conf": polygons(d / "debris_conf.tif", {3: "radar + optical"}) if (d / "debris_conf.tif").exists() else None}
     web = ROOT / "web/public/data"
