@@ -97,31 +97,27 @@ Reading: run 1 was badly under-trained, finding only 17 % of flooded pixels. Mor
 
 **4.2 Unseen Himalayan scene: Dharali, Uttarkashi (5 Aug 2025, 08:15 UTC).**
 
-AOI 78.70–78.90 E, 30.98–31.10 N (265 km²). Radar pairs:
-- track 129 ascending: 24 Jul → **5 Aug 12:48 UTC**, about 4.5 h after the flood;
-- track 63 descending: 1 Aug → 7 Aug.
+AOI 78.70–78.90 E, 30.98–31.10 N (265 km²), run in 5 min 35 s from raw data:
+- radar pairs: track 129 ascending, 24 Jul → **5 Aug 12:48 UTC** (about 4.5 h after the flood); track 63 descending, 1 Aug → 7 Aug;
+- Sentinel-2: 6 Jul → 13 Aug 2025 (42 % of the area clear after the event).
 
-| | **AI floodwater** (run 2, threshold 0.80) | Possible debris (rule radar change, low confidence) |
+| | **Floodwater** (AI U-Net + Sentinel-2 MNDWI, HAND ≤ 15 m) | **Debris** (radar change + Sentinel-2 vegetated→barren) |
 |---|---|---|
-| Area inside the 200 m corridor | **0.74 km²** | 4.77 km² |
-| Buildings on it (of 502 pre-event OSM) | **0** | 47 |
-| Road segments (of 112) | **0** | 23 |
-| Bridges (of 16) | **0** | 1 |
-| Settlements cut off (of 14 mapped places) | **0** | 6: Bagori, Bhaironghati, Dhakroliya, Halunga, **Harsil**, Lanka |
+| Area inside the 200 m corridor | **1.3 km²** (AI 0.446 + Sentinel-2 0.85) | 1.466 km² (radar 1.424, optical 0.042) |
+| Buildings on it (of 502 pre-event OSM) | **3** | 36 |
+| Roads with a damaged stretch (of 112) | **13** | 14 |
+| Bridges (of 16) | **3** | 2 |
+| Settlements cut off (of 14 mapped places) | **1: Harsil** | 1: Bagori |
 
-**Why the AI map is nearly empty at Dharali:** the disaster was a **debris flow** of mud and boulders that buried the village, not standing floodwater. The U-Net is trained on Kuro Siwo *floodwater* labels, so it correctly does not call rough debris "water".
-- The under-trained run-1 model had flagged 9 buildings there. Those were most likely false positives; run 2's much higher precision on unseen events supports that.
-- Damage from debris is therefore reported from a separate, clearly labelled low-confidence layer: the rule-based radar change, after/before < 1/1.25 within the corridor.
-- That layer's cut-off result (Harsil and five other settlements) is consistent with reports that the road at Harsil was washed out, but the layer itself has not been validated.
+**Reading.**
+- The disaster was a **debris flow** of mud and boulders, not standing floodwater. The Kuro Siwo U-Net, trained on floodwater, finds little water (0.446 km²); this is consistent with what EMS later mapped at Trishuli (section 4.3).
+- Sentinel-2's new open water may include the debris-dammed lake reported near Harsil. We have not verified this.
+- **Harsil** is cut off by water: ≈120 buildings, landing candidate 1.25 km away. This matches reports that the road at Harsil was washed out.
+- **Bagori** is cut off by debris: ≈32 buildings, landing candidate 0.37 km away.
+- **What the clean-up changed** (section 3.4). An earlier version reported 6 settlements cut off and 4.8 km² of debris. Most of that debris was isolated specks, and a whole highway was removed whenever one pixel touched it. Lanka and Bhaironghati were false cut-offs from that rule.
+- No EMS product exists for Dharali to score against, so these numbers are not validated. Trishuli (4.3) is the validated case.
 
-Figure: `results/space/dharali/map.png`. The dashboard's "Space mode" page shows both layers interactively.
-
-**Update with Sentinel-2 fusion** (re-run on the same inputs).
-- Sentinel-2 of 13 Aug 2025 was 42 % clear over the area. Its MNDWI adds **0.85 km² of new open water** in the corridor, which may include the debris-dammed lake reported near Harsil (not verified here).
-- The final flood map (AI + Sentinel-2) hits 3 buildings, 13 road segments and 3 bridges. It cuts off 1 settlements.
-- With debris added, 1 are cut off.
-- Rescue priorities: Harsil (≈120 buildings, landing candidate 1.25 km), Bagori (≈32 buildings, landing candidate 0.37 km).
-- Run time 5 min 35 s.
+The dashboard's Space mode page shows both layers, the damaged road stretches, rescue priorities and the Sentinel-2 before/after slider.
 
 **4.3 Case study: Trishuli GLOF, Rasuwa, Nepal (25–26 Aug 2026), checked against Copernicus EMS EMSR927.**
 

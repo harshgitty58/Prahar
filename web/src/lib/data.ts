@@ -75,7 +75,7 @@ function load<T>(name: string): Promise<T> {
   return cache.get(name) as Promise<T>
 }
 
-export function useData<T>(name: 'stations' | 'snapshot' | 'timeline' | 'model' | 'events' | 'impact' | 'buildings' | 'landmarks' | 'metrics' | 'system' | 'district_watch' | 'space' | 'space_index' | `space_${string}`) {
+export function useData<T>(name: 'stations' | 'snapshot' | 'timeline' | 'model' | 'events' | 'impact' | 'buildings' | 'landmarks' | 'metrics' | 'system' | 'district_watch' | 'space_index' | `space_${string}`) {
   const [d, setD] = useState<T | null>(null)
   useEffect(() => { load<T>(name).then(setD) }, [name])
   return d
