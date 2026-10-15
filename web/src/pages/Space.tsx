@@ -3,6 +3,7 @@ import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { useEffect, useRef, useState } from 'react'
 import { PageHead, Panel, Stat } from '../components/ui'
 import { useData } from '../lib/data'
+import PlaceSearch from '../components/PlaceSearch'
 
 type FC = GeoJSON.FeatureCollection
 type Score = { precision: number; recall: number; f1: number; iou: number }
@@ -83,7 +84,7 @@ function download(name: string, obj: unknown, type = 'application/geo+json') {
   a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000)
 }
 
-function SpaceMap({ d, tracing, onTrace, vis, s2t }: { d: SpaceData; tracing: boolean; onTrace: (t: Trace | null) => void; vis: Vis; s2t: number | null }) {
+function SpaceMap({ d, tracing, onTrace, vis, s2t, focus }: { d: SpaceData; tracing: boolean; onTrace: (t: Trace | null) => void; vis: Vis; s2t: number | null; focus: { lon: number; lat: number; t: number } | null }) {
   const el = useRef<HTMLDivElement>(null)
   const map = useRef<maplibregl.Map | null>(null)
   const dirRef = useRef<Uint8Array | null>(null)
@@ -111,6 +112,7 @@ function SpaceMap({ d, tracing, onTrace, vis, s2t }: { d: SpaceData; tracing: bo
     m.setPaintProperty('s2post', 'raster-opacity', t == null ? 0 : t)
   }
   useEffect(applyS2, [s2t])
+  useEffect(() => { if (focus && map.current) map.current.flyTo({ center: [focus.lon, focus.lat], zoom: 14.5, duration: 1800 }) }, [focus])
   useEffect(() => {
     if (!el.current) return
     const [w, s, e, n] = d.bbox
@@ -285,6 +287,7 @@ export default function Space() {
   const [vis, setVis] = useState<Vis>({})
   const [lang, setLang] = useState<Lang>('en')
   const [s2t, setS2t] = useState<number | null>(null)
+  const [focus, setFocus] = useState<{ lon: number; lat: number; t: number } | null>(null)
   if (!d) return null
   const t = d.model.test_scores_unseen_events
   const cut = d.cutoff.settlements.filter(s => s.status === 'CUT OFF')
@@ -318,7 +321,12 @@ export default function Space() {
           <span className="text-xs text-mute">Follows the terrain downhill (Copernicus DEM, D8 on a Priority-Flood filled surface) and lists settlements and bridges within the 200 m river corridor of the path.</span>
         </div>}
         <div className="relative">
-          <SpaceMap d={d} tracing={tracing} onTrace={setTrace} vis={vis} s2t={s2t} />
+          <SpaceMap d={d} tracing={tracing} onTrace={setTrace} vis={vis} s2t={s2t} focus={focus} />
+          <PlaceSearch className="absolute right-14 top-2 z-10" placeholder="Search a settlement…"
+            places={[
+              ...d.cutoff.settlements.filter(s => s.name).map(s => ({ name: s.name as string, lon: s.lon, lat: s.lat, kind: s.status })),
+              ...(d.rescue?.settlements ?? []).flatMap(r => r.landing_sites.slice(0, 1).map(x => ({ name: `Landing spot for ${r.name}`, lon: x.lon, lat: x.lat, kind: `${x.dist_km} km` })))]}
+            onPick={p => setFocus({ lon: p.lon, lat: p.lat, t: Date.now() })} />
           {d.s2_images && <div className="absolute left-2 top-2 flex items-center gap-2 rounded-lg bg-black/75 px-3 py-2 text-xs backdrop-blur">
             <label className="flex items-center gap-1"><input type="checkbox" checked={s2t != null} onChange={e => setS2t(e.target.checked ? 1 : null)} />Sentinel-2</label>
             {s2t != null && <>

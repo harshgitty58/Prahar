@@ -1,6 +1,7 @@
 import type * as GeoJSON from 'geojson'
 import { useMemo, useState } from 'react'
 import FloodMap, { type Basemap } from '../components/FloodMap'
+import PlaceSearch, { type Place } from '../components/PlaceSearch'
 import ObjectCard, { type ObjProps } from '../components/ObjectCard'
 import { BasemapSwitch, Bar } from '../components/ui'
 import { pretty, useData, type Impact as ImpactData, type Snapshot, type Station } from '../lib/data'
@@ -85,6 +86,10 @@ export default function Impact() {
 
       <div className="relative min-h-[600px]">
         <FloodMap basemap={base} terrain3d={is3d} points={points} tiledBuildings landmarks={marks} coverage={im?.coverage} focus={focus} onBuilding={p => setB(p as unknown as ObjProps)} />
+        <PlaceSearch className="absolute left-4 top-4 z-10" places={[
+          ...(stations ?? []).map(s => ({ name: s.station, lon: s.lon, lat: s.lat, kind: `station · ${s.district}` })),
+          ...(marks?.features ?? []).filter(f => (f.properties as Record<string, unknown>)?.place).map(f => ({ name: String((f.properties as Record<string, unknown>).name), lon: (f.geometry as GeoJSON.Point).coordinates[0], lat: (f.geometry as GeoJSON.Point).coordinates[1], kind: `${String((f.properties as Record<string, unknown>).kind)} · ${(f.geometry as GeoJSON.Point).coordinates[1].toFixed(2)}°N ${(f.geometry as GeoJSON.Point).coordinates[0].toFixed(2)}°E` }))] as Place[]}
+          onPick={p => setFocus({ lon: p.lon, lat: p.lat, zoom: 15 })} />
         <div className="absolute left-1/2 top-4 -translate-x-1/2"><BasemapSwitch value={base} onChange={setBase} is3d={is3d} on3d={set3d} /></div>
         <div className="glass absolute bottom-4 left-14 rounded-lg px-3 py-2 text-[11px] text-mute">Pick a station on the left to fly to its buildings · click a building · outlines: solid live gauge · dashed last gauge report · dotted district estimate</div>
         {b && <ObjectCard o={b} stations={im.station_p} onClose={() => setB(null)} />}
