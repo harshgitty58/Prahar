@@ -25,13 +25,23 @@ class Engine:
     def __init__(self):
         self.features = FEATURE_EXPERIMENTS[FINAL_EXPERIMENT]
         self.model = joblib.load(ROOT / "models/xgboost/model.joblib")
-        ds = pd.read_parquet(ROOT / "data/processed/final/uttarakhand_flash_flood_ml_dataset.parquet")
+        # read only the columns the API needs (the full table is ~400 MB in memory; Render's free tier has 512 MB)
+        path = ROOT / "data/processed/final/uttarakhand_flash_flood_ml_dataset.parquet"
+        import pyarrow.parquet as pq
+        have = set(pq.read_schema(path).names)
+        static_cols = [c for c in set(self.features + STATIC_COLS) if c in have and not c.startswith(("rain_", "api_"))]
+        cols = sorted({"station", "datetime", "rain_1h", *static_cols} & have)
+        cache = ROOT / "data/processed/final/api_engine_cache.parquet"   # per-station last 1440 h (scripts/make_api_cache.py)
+        ds = pd.read_parquet(cache if cache.exists() else path, columns=cols)
+        for c in ds.select_dtypes("float64").columns:
+            ds[c] = ds[c].astype("float32")
         last = ds.sort_values("datetime").groupby("station").tail(1).set_index("station")
         # static (non-rain) inputs per station = latest known values
         self.static = last[[c for c in set(self.features + STATIC_COLS) if c in last and not c.startswith(("rain_", "api_"))]]
         # per-station history indexed once, so warming a station is a dict lookup + a 96-row replay (no full-table scan)
         self.history = {st: g.sort_values("datetime")[["datetime", "rain_1h"]].tail(24 * 60).reset_index(drop=True)
                         for st, g in ds.groupby("station")}
+        del ds, last
         cal = pd.read_csv(ROOT / "results/conformal/calibration_scores.csv")
         s, y = cal["score"].to_numpy(), cal["y"].to_numpy()
         self.grid = np.unique(np.quantile(s, np.linspace(0, 1, 400)))
