@@ -81,8 +81,8 @@ def build(name: str) -> str:
          f"- {len(longer)} reachable only by a longer route; {c['counts'].get('connected', 0)} still connected; {c['counts'].get('not connected before', 0)} had no mapped road link even before the flood.", ""]
     if s.get("debris_rule"):
         dr = s["debris_rule"]; dd = dr["damage"]
-        L += ["## Possible debris (low confidence)",
-              f"- The AI model maps floodwater only. A rule-based radar-change layer marks **{dr['km2']} km²** of possible debris / ground change in the corridor (not validated).",
+        L += ["## Debris (radar + Sentinel-2)",
+              f"- The AI model maps floodwater only. Debris = radar change (low confidence) plus Sentinel-2 vegetated→barren change where clear, on the valley floor: **{dr['km2']} km²** in the corridor.",
               f"- On it: buildings {dd['buildings']['hit']} of {dd['buildings']['total']}, road segments {dd['roads']['hit']} of {dd['roads']['total']}, bridges {dd['bridges']['hit']} of {dd['bridges']['total']}; "
               f"settlements cut off if those roads are blocked: {dr['cutoff'].get('CUT OFF', 0)}."]
         if "both_km2" in dr:
@@ -109,7 +109,8 @@ def build(name: str) -> str:
     L += ["## Limitations (read before acting)",
           "- Sentinel-1 revisits every 6–12 days: this maps what the satellite saw, not the moment of the flood, and cannot warn in advance.",
           "- Steep Himalayan slopes cause radar layover/shadow; narrow gorges and debris under forest can be missed.",
-          "- OSM completeness varies; unmapped buildings and roads cannot be counted. Damage = 'on a flooded pixel', not structural damage.",
+          "- OSM completeness varies; unmapped buildings and roads cannot be counted. Damage = 'on a flooded/debris pixel', not structural damage; roads are cut only on the stretches that touch one.",
+          "- Floodwater more than 15 m above the nearest mapped drainage is excluded (HAND rule, Twele et al. 2016); flooding fed by unmapped streams can be missed. Debris is not height-limited.",
           "- Educational prototype — verify on the ground before operational use.", "",
           "*" + " ".join(ATTRIB) + "*"]
     md = "\n".join(L)
@@ -121,5 +122,7 @@ def build(name: str) -> str:
 
 
 if __name__ == "__main__":
+    import sys
+    sys.stdout.reconfigure(encoding="utf-8")   # Windows consoles default to cp1252
     ap = argparse.ArgumentParser(); ap.add_argument("--name", required=True)
     print(build(ap.parse_args().name))

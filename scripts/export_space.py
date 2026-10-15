@@ -36,6 +36,18 @@ def polygons(tif: Path, classes: dict) -> dict:
     return {"type": "FeatureCollection", "features": feats}
 
 
+def parts(fc: dict, hit_only=True) -> tuple[dict, dict]:
+    """(lines with the bulky hit_parts property dropped, damaged stretches only as MultiLineStrings)."""
+    lines, cut = [], []
+    for f in fc["features"]:
+        hp = f["properties"].pop("hit_parts", None) or []
+        if f["properties"].get("hit") or not hit_only:
+            lines.append(f)
+        if hp:
+            cut.append({"type": "Feature", "geometry": {"type": "MultiLineString", "coordinates": hp}, "properties": {k: f["properties"].get(k) for k in ("id", "name", "kind")}})
+    return {"type": "FeatureCollection", "features": lines}, {"type": "FeatureCollection", "features": cut}
+
+
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--name", default="dharali"); n = ap.parse_args().name
     d = ROOT / "results/space" / n
@@ -44,15 +56,19 @@ def main():
     meta = json.loads(meta_p.read_text(encoding="utf-8")) if meta_p.exists() else {}
     load = lambda f: json.loads((d / f).read_text(encoding="utf-8"))  # noqa: E731
     b = load("buildings_hit.geojson"); b["features"] = [f for f in b["features"] if f["properties"]["hit"]]
+    roads_all, road_cut = parts(load("roads_hit.geojson"), hit_only=False)
+    bridges_all, bridge_cut = parts(load("bridges_hit.geojson"), hit_only=False)
+    deb_roads, deb_road_cut = parts(load("roads_debris.geojson")) if (d / "roads_debris.geojson").exists() else (None, None)
     out = {"name": n, "event_utc": s["event_utc"], "bbox": s["bbox"], "detector": s.get("detector"), "osm_snapshot": s["osm_snapshot"],
            "s1_pairs": s["s1_pairs"], "flood": s["flood"], "damage": s["damage"], "cutoff": load("cutoff.json"),
            "model": {k: meta.get(k) for k in ("arch", "flood_threshold", "water_threshold", "test_scores_unseen_events", "training_data", "trained_utc")},
            "layers": {"flood": polygons(d / "flood_class.tif", {1: "flood", 3: "permanent water"}), "buildings_hit": b,
-                      "roads": load("roads_hit.geojson"), "bridges": load("bridges_hit.geojson")},
+                      "roads": roads_all, "bridges": bridges_all,
+                      "cut_segments": {"type": "FeatureCollection", "features": road_cut["features"] + bridge_cut["features"]}},
            "debris": ({"summary": s["debris_rule"], "cutoff": load("cutoff_debris.json"),
                        "polygons": polygons(d / "debris_class.tif", {2: "possible debris"}),
                        "buildings_hit": {"type": "FeatureCollection", "features": [f for f in load("buildings_debris.geojson")["features"] if f["properties"]["hit"]]},
-                       "roads": {"type": "FeatureCollection", "features": [f for f in load("roads_debris.geojson")["features"] if f["properties"]["hit"]]}}
+                       "roads": deb_roads, "cut_segments": deb_road_cut}
                       if (d / "debris_class.tif").exists() else None),
            "sitrep": (d / "sitrep.md").read_text(encoding="utf-8") if (d / "sitrep.md").exists() else "",
            "s2": s.get("s2"), "runtime_s": s.get("runtime_s"),

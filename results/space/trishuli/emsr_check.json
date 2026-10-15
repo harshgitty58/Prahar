@@ -12,34 +12,34 @@
   "note": "Copernicus EMS vectors used ONLY to check the output, never as an input.",
   "pixel": {
     "ai_water": {
-      "precision": 0.561,
-      "recall": 0.039,
-      "f1": 0.073,
-      "iou": 0.038,
-      "tp_px": 938,
-      "fp_px": 734,
-      "fn_px": 23097,
-      "km2_in_aoi": 0.167
+      "precision": 0.97,
+      "recall": 0.027,
+      "f1": 0.052,
+      "iou": 0.027,
+      "tp_px": 647,
+      "fp_px": 20,
+      "fn_px": 23388,
+      "km2_in_aoi": 0.067
     },
     "debris": {
       "precision": 0.95,
-      "recall": 0.331,
-      "f1": 0.491,
-      "iou": 0.325,
-      "tp_px": 7950,
-      "fp_px": 419,
-      "fn_px": 16085,
-      "km2_in_aoi": 0.837
+      "recall": 0.327,
+      "f1": 0.486,
+      "iou": 0.321,
+      "tp_px": 7852,
+      "fp_px": 415,
+      "fn_px": 16183,
+      "km2_in_aoi": 0.827
     },
     "union": {
-      "precision": 0.885,
-      "recall": 0.37,
-      "f1": 0.521,
-      "iou": 0.353,
-      "tp_px": 8883,
-      "fp_px": 1153,
-      "fn_px": 15152,
-      "km2_in_aoi": 1.004
+      "precision": 0.951,
+      "recall": 0.353,
+      "f1": 0.515,
+      "iou": 0.347,
+      "tp_px": 8496,
+      "fp_px": 435,
+      "fn_px": 15539,
+      "km2_in_aoi": 0.893
     },
     "debris_radar_only_input": {
       "precision": 0.616,
@@ -52,55 +52,55 @@
       "km2_in_aoi": 0.108
     },
     "debris_optical_only_input": {
-      "precision": 0.999,
-      "recall": 0.316,
-      "f1": 0.48,
-      "iou": 0.316,
-      "tp_px": 7589,
-      "fp_px": 4,
-      "fn_px": 16446,
-      "km2_in_aoi": 0.759
+      "precision": 1.0,
+      "recall": 0.311,
+      "f1": 0.475,
+      "iou": 0.311,
+      "tp_px": 7486,
+      "fp_px": 0,
+      "fn_px": 16549,
+      "km2_in_aoi": 0.749
     }
   },
   "buildings": {
     "ai_water": {
       "n": 864,
       "ems_damaged": 864,
-      "tp": 31,
+      "tp": 20,
       "fp": 0,
-      "fn": 833,
+      "fn": 844,
       "tn": 0,
       "precision": 1.0,
-      "recall": 0.036,
-      "osm_flagged_in_aoi": 25,
-      "osm_flagged_near_ems_damage": 20,
-      "osm_precision": 0.8
+      "recall": 0.023,
+      "osm_flagged_in_aoi": 11,
+      "osm_flagged_near_ems_damage": 10,
+      "osm_precision": 0.909
     },
     "debris": {
       "n": 864,
       "ems_damaged": 864,
-      "tp": 575,
+      "tp": 571,
       "fp": 0,
-      "fn": 289,
+      "fn": 293,
       "tn": 0,
       "precision": 1.0,
-      "recall": 0.666,
-      "osm_flagged_in_aoi": 388,
-      "osm_flagged_near_ems_damage": 374,
+      "recall": 0.661,
+      "osm_flagged_in_aoi": 385,
+      "osm_flagged_near_ems_damage": 371,
       "osm_precision": 0.964
     },
     "union": {
       "n": 864,
       "ems_damaged": 864,
-      "tp": 590,
+      "tp": 578,
       "fp": 0,
-      "fn": 274,
+      "fn": 286,
       "tn": 0,
       "precision": 1.0,
-      "recall": 0.683,
-      "osm_flagged_in_aoi": 413,
-      "osm_flagged_near_ems_damage": 394,
-      "osm_precision": 0.954
+      "recall": 0.669,
+      "osm_flagged_in_aoi": 396,
+      "osm_flagged_near_ems_damage": 381,
+      "osm_precision": 0.962
     },
     "debris_radar_only_input": {
       "n": 864,
@@ -115,24 +115,24 @@
     "debris_optical_only_input": {
       "n": 864,
       "ems_damaged": 864,
-      "tp": 574,
+      "tp": 570,
       "fp": 0,
-      "fn": 290,
+      "fn": 294,
       "tn": 0,
       "precision": 1.0,
-      "recall": 0.664
+      "recall": 0.66
     }
   },
   "roads": {
     "ai_water": {
       "n": 44,
       "ems_damaged": 35,
-      "tp": 16,
-      "fp": 4,
-      "fn": 19,
-      "tn": 5,
-      "precision": 0.8,
-      "recall": 0.457
+      "tp": 12,
+      "fp": 1,
+      "fn": 23,
+      "tn": 8,
+      "precision": 0.923,
+      "recall": 0.343
     },
     "debris": {
       "n": 44,
@@ -147,12 +147,12 @@
     "union": {
       "n": 44,
       "ems_damaged": 35,
-      "tp": 25,
-      "fp": 5,
-      "fn": 10,
-      "tn": 4,
-      "precision": 0.833,
-      "recall": 0.714
+      "tp": 24,
+      "fp": 2,
+      "fn": 11,
+      "tn": 7,
+      "precision": 0.923,
+      "recall": 0.686
     },
     "debris_radar_only_input": {
       "n": 44,
@@ -175,35 +175,35 @@
       "recall": 0.657
     }
   },
-  "missed_under_cloud_share": 0.477,
+  "missed_under_cloud_share": 0.465,
   "ems_event_clear_share": 0.692,
   "pixel_where_s2_clear": {
     "ai_water": {
-      "precision": 0.561,
-      "recall": 0.056,
-      "f1": 0.102,
-      "iou": 0.054,
-      "tp_px": 938,
-      "fp_px": 734,
-      "fn_px": 15701
+      "precision": 0.97,
+      "recall": 0.039,
+      "f1": 0.075,
+      "iou": 0.039,
+      "tp_px": 647,
+      "fp_px": 20,
+      "fn_px": 15992
     },
     "debris": {
       "precision": 0.951,
-      "recall": 0.467,
-      "f1": 0.627,
-      "iou": 0.456,
-      "tp_px": 7775,
-      "fp_px": 401,
-      "fn_px": 8864
+      "recall": 0.461,
+      "f1": 0.621,
+      "iou": 0.451,
+      "tp_px": 7677,
+      "fp_px": 397,
+      "fn_px": 8962
     },
     "union": {
-      "precision": 0.885,
-      "recall": 0.523,
-      "f1": 0.658,
-      "iou": 0.49,
-      "tp_px": 8708,
-      "fp_px": 1135,
-      "fn_px": 7931
+      "precision": 0.952,
+      "recall": 0.5,
+      "f1": 0.656,
+      "iou": 0.488,
+      "tp_px": 8321,
+      "fp_px": 417,
+      "fn_px": 8318
     },
     "debris_radar_only_input": {
       "precision": 0.553,
@@ -215,13 +215,13 @@
       "fn_px": 16148
     },
     "debris_optical_only_input": {
-      "precision": 0.999,
-      "recall": 0.456,
-      "f1": 0.626,
-      "iou": 0.456,
-      "tp_px": 7589,
-      "fp_px": 4,
-      "fn_px": 9050
+      "precision": 1.0,
+      "recall": 0.45,
+      "f1": 0.621,
+      "iou": 0.45,
+      "tp_px": 7486,
+      "fp_px": 0,
+      "fn_px": 9153
     }
   }
 }

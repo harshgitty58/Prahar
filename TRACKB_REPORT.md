@@ -55,11 +55,19 @@ Two documented adaptations, plus one corridor rule:
 - **New open water:** MNDWI = (green − SWIR1)/(green + SWIR1) > 0 after and ≤ 0 before (Xu 2006). It joins the AI flood map inside the corridor.
 - **Debris / scour:** vegetated before (NDVI ≥ 0.2) and barren after (NDVI ≤ 0.1), using the USGS NDVI ranges (≤ 0.1 barren rock or sand; 0.2–0.3 shrub and grassland). It joins the radar debris layer, and pixels where radar *and* optical agree are marked medium confidence.
 
-**3.4 Damage and cut-off** (`src/space/impact.py`):
-- An object counts as **hit** if any flooded pixel touches it (direct overlay, no scoring).
-- The road graph is built from pre-event OSM lines, weighted by length. Hit roads and bridges are removed. Dijkstra shortest paths to the destinations; settlement status is *cut off*, *longer route*, *connected*, or *not connected even before the flood*.
+**3.4 Clean-up rules**
+- **Minimum cluster, on every layer** (AI water, Sentinel-2 water, radar and optical debris): a pixel with ≤ 8 connected neighbours is removed. This is the UN-SPIDER rule, now applied beyond the radar baseline.
+- **Height above drainage, on water layers only:** water more than **15 m above the nearest drainage** is excluded (HAND rule, Twele et al. 2016).
+  - HAND is computed from the Copernicus DEM, with pre-event OSM waterways and permanent water as the drainage, using the nearest drainage pixel by distance.
+  - This removed water blobs on shaded forest slopes and cloud-shadow edges, which floodwater cannot reach.
+- **We tested HAND on debris too and rejected it.** At Trishuli it raised area precision to 0.97, but cut the EMS-damaged buildings found from 68 % to 26 %. A glacial-lake outburst throws debris far above 15 m on gorge walls; Twele's rule is a floodwater rule.
 
-**3.5 Rescue add-ons** (`src/space/rescue.py`):
+**3.5 Damage and cut-off** (`src/space/impact.py`):
+- A building counts as **hit** if any flood or debris pixel touches it (direct overlay, no scoring).
+- Roads and bridges are checked **segment by segment** (each pair of OSM vertices, sampled every half pixel). Only the damaged stretches are cut from the road graph, so one touched pixel no longer removes a whole highway.
+- The road graph is built from pre-event OSM lines, weighted by length. Hit segments are removed. Dijkstra shortest paths to the destinations; settlement status is *cut off*, *longer route*, *connected*, or *not connected even before the flood*.
+
+**3.6 Rescue add-ons** (`src/space/rescue.py`):
 - **Who first:** pre-event OSM buildings are assigned to their nearest mapped settlement, and cut-off settlements are ranked by size.
 - **Where a helicopter can land:** flat, dry, open patches following ICAO Annex 14 Vol II (Heliports):
   - FATO mean slope ≤ 3 %, no local slope > 5 %;
@@ -71,7 +79,7 @@ Two documented adaptations, plus one corridor rule:
   - D8 flow directions on a Priority-Flood filled Copernicus DEM (Barnes et al. 2014).
   - Click any upstream point in the dashboard to get the downstream path, plus the settlements and bridges within 200 m of it, with distance from the source.
 
-**3.6 Live use.** The dashboard's "Map any flood" box (API mode) posts an area and date to `POST /space/run`. The pipeline then runs from raw data with stage-by-stage progress, and the result appears as a new event tab. Radar scenes are cached on disk, so repeat runs are faster. The sitrep adds one-glance summaries in **Hindi and Nepali**: fixed, translated sentence templates filled only with the system's numbers (no machine translation, no language model).
+**3.7 Live use.** The dashboard's "Map any flood" box (API mode) posts an area and date to `POST /space/run`. The pipeline then runs from raw data with stage-by-stage progress, and the result appears as a new event tab. Radar scenes are cached on disk, so repeat runs are faster. The sitrep adds one-glance summaries in **Hindi and Nepali**: fixed, translated sentence templates filled only with the system's numbers (no machine translation, no language model).
 
 ## 4. Results
 **4.1 AI model on unseen Kuro Siwo test events** (official test split, never seen in training or threshold selection; 3,000 chips):
@@ -109,15 +117,15 @@ AOI 78.70–78.90 E, 30.98–31.10 N (265 km²). Radar pairs:
 Figure: `results/space/dharali/map.png`. The dashboard's "Space mode" page shows both layers interactively.
 
 **Update with Sentinel-2 fusion** (re-run on the same inputs).
-- Sentinel-2 of 13 Aug 2025 was 42 % clear over the area. Its MNDWI adds **2.036 km² of new open water** in the corridor, which may include the debris-dammed lake reported near Harsil (not verified here).
-- The final flood map (AI + Sentinel-2) hits 7 buildings, 22 road segments and 4 bridges. It cuts off 5 settlements.
-- With debris added, 6 are cut off.
-- Rescue priorities: Harsil (≈120 buildings, landing candidate 1.25 km), Halunga (≈45 buildings, landing candidate 0.85 km), Bagori (≈32 buildings, landing candidate 0.37 km), Lanka (≈22 buildings, landing candidate 9.6 km), Bhaironghati (≈18 buildings, landing candidate 9.9 km), Dhakroliya (≈14 buildings, landing candidate 0.29 km).
-- Run time 8 min 3 s.
+- Sentinel-2 of 13 Aug 2025 was 42 % clear over the area. Its MNDWI adds **0.85 km² of new open water** in the corridor, which may include the debris-dammed lake reported near Harsil (not verified here).
+- The final flood map (AI + Sentinel-2) hits 3 buildings, 13 road segments and 3 bridges. It cuts off 1 settlements.
+- With debris added, 1 are cut off.
+- Rescue priorities: Harsil (≈120 buildings, landing candidate 1.25 km), Bagori (≈32 buildings, landing candidate 0.37 km).
+- Run time 5 min 35 s.
 
 **4.3 Case study: Trishuli GLOF, Rasuwa, Nepal (25–26 Aug 2026), checked against Copernicus EMS EMSR927.**
 
-The pipeline was run blind for AOI 85.30–85.40 E, 28.14–28.29 N with event time 2026-08-25 22:00 UTC, in **6 min 59 s** from raw data:
+The pipeline was run blind for AOI 85.30–85.40 E, 28.14–28.29 N with event time 2026-08-25 22:00 UTC, in **7 min 41 s** from raw data:
 - radar pairs: track 85 ascending 2026-08-16 → 2026-08-28 12:21 UTC; track 121 descending 2026-08-19 → 2026-08-31 00:10 UTC; track 19 descending 2026-08-24 → 2026-09-05 00:18 UTC;
 - Sentinel-2 S2C_45RUM_20260812_0_L2A → S2B_45RUM_20260827_0_L2A (45 % of the area clear in both);
 - OSM snapshot 2026-07-27.
@@ -126,17 +134,17 @@ EMSR927 vectors were then downloaded **only to check the output**: the "observed
 
 | PRAHAR layer (inside EMS AOIs) | Area precision | Area recall | IoU | EMS-damaged buildings found | EMS-damaged roads found |
 |---|---|---|---|---|---|
-| Floodwater (AI + Sentinel-2 MNDWI) | 0.56 | 0.04 | 0.04 | 31/864 | 16/35 |
-| Debris (radar ∪ Sentinel-2 vegetated→barren) | 0.95 | 0.33 | 0.33 | 575/864 | 23/35 |
-| **Both layers** | **0.89** | **0.37** | **0.35** | **590/864 (68 %)** | **25/35 (71 %)** |
+| Floodwater (AI + Sentinel-2 MNDWI) | 0.97 | 0.03 | 0.03 | 20/864 | 12/35 |
+| Debris (radar ∪ Sentinel-2 vegetated→barren) | 0.95 | 0.33 | 0.32 | 571/864 | 23/35 |
+| **Both layers** | **0.95** | **0.35** | **0.35** | **578/864 (67 %)** | **24/35 (69 %)** |
 | *Ablation: radar debris only* | 0.62 | 0.03 | 0.03 | 2/864 | 4/35 |
-| *Ablation: Sentinel-2 debris only* | 1.00 | 0.32 | 0.32 | 574/864 | 23/35 |
+| *Ablation: Sentinel-2 debris only* | 1.00 | 0.31 | 0.31 | 570/864 | 23/35 |
 
-Building precision from our side: of the 413 pre-event OSM buildings PRAHAR flags inside the AOIs, **394 (95 %) lie within 25 m of an EMS-damaged building**. EMS grades only damaged buildings, so the EMS side gives recall only.
+Building precision from our side: of the 396 pre-event OSM buildings PRAHAR flags inside the AOIs, **381 (96 %) lie within 25 m of an EMS-damaged building**. EMS grades only damaged buildings, so the EMS side gives recall only.
 
 **Reading.**
-- When PRAHAR says "hit", it is almost always right: area precision 0.89, building precision 0.95.
-- It finds about two-thirds of the damaged buildings and roads, but only 37 % of the EMS event *area*. Of the missed area, 48 % was under cloud in the post-event Sentinel-2 image; where Sentinel-2 was clear, recall is 0.52 and IoU 0.49.
+- When PRAHAR says "hit", it is almost always right: area precision 0.95, building precision 0.96.
+- It finds about two-thirds of the damaged buildings and roads, but only 35 % of the EMS event *area*. Of the missed area, 46 % was under cloud in the post-event Sentinel-2 image; where Sentinel-2 was clear, recall is 0.50 and IoU 0.49.
 - The ablation is the honest lesson. In this narrow gorge **radar alone found very little** (recall 0.03): debris is rough, like the forest it replaced, and the steep walls cause layover and shadow. **Sentinel-2's vegetated→barren change carried the result** (precision 1.00).
 - As at Dharali, the Kuro Siwo U-Net found essentially no standing water (0.0 km²), which is consistent with EMS calling it a debris flow. The floodwater row comes from Sentinel-2 MNDWI.
 - This is also the **unseen-Himalayan test** of the AI component: as a floodwater model it correctly abstains on a debris flow. The damage answer needs the debris evidence.

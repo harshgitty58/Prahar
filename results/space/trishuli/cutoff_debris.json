@@ -252,7 +252,7 @@
       "status": "CUT OFF"
     }
   ],
-  "removed_road_ids": 65,
+  "removed_segments": 493,
   "counts": {
     "CUT OFF": 23,
     "longer route": 0,

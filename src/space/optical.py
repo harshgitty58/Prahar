@@ -9,7 +9,7 @@ Scenes are chosen by the clear share INSIDE the area (tile cloud cover says litt
 import numpy as np
 import pandas as pd
 
-from . import data
+from . import data, flood
 
 SCL_CLEAR = (4, 5, 6, 7)        # vegetation, not-vegetated, water, unclassified (ESA L2A SCL)
 MNDWI_WATER = 0.0               # Xu (2006)
@@ -47,7 +47,9 @@ def evidence(bbox, grid, event: pd.Timestamp, pre_days=30, post_days=12) -> dict
         with np.errstate(invalid="ignore", divide="ignore"):
             ind[k] = {"mndwi": (g - s) / (g + s), "ndvi": (n - r) / (n + r)}
     w_pre, w_post = ind["pre"]["mndwi"] > MNDWI_WATER, ind["post"]["mndwi"] > MNDWI_WATER
-    new_water = ok & w_post & ~w_pre
-    debris = ok & (ind["pre"]["ndvi"] >= NDVI_VEG) & (ind["post"]["ndvi"] <= NDVI_BARE) & ~w_post
+    # same minimum-cluster rule as the radar map (UN-SPIDER: a pixel with <= 8 connected neighbours is removed);
+    # without it shaded forest and cloud-shadow edges leave isolated specks on the slopes
+    new_water = flood.drop_small(ok & w_post & ~w_pre)
+    debris = flood.drop_small(ok & (ind["pre"]["ndvi"] >= NDVI_VEG) & (ind["post"]["ndvi"] <= NDVI_BARE) & ~w_post)
     meta |= {"used": True, "both_clear": round(float(ok.mean()), 3)}
     return {"meta": meta, "clear": ok, "new_water": new_water, "debris": debris}

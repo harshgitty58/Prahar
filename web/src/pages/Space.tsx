@@ -13,7 +13,7 @@ export type SpaceData = {
   flood: Record<string, number>; damage: Record<'buildings' | 'roads' | 'bridges', { total: number; hit: number }>
   cutoff: { destination: string; counts: Record<string, number>; settlements: Settlement[] }
   model: { arch?: string; flood_threshold?: number; test_scores_unseen_events?: { flood_tuned?: Score; any_water?: Score; flood_argmax?: Score } }
-  layers: { flood: FC; buildings_hit: FC; roads: FC; bridges: FC }
+  layers: { flood: FC; buildings_hit: FC; roads: FC; bridges: FC; cut_segments?: FC }
   sitrep: string
   s2?: { used: boolean; pre?: string; post?: string; both_clear?: number; reason?: string } | null
   runtime_s?: number | null
@@ -26,7 +26,7 @@ export type SpaceData = {
   debris_conf?: FC | null
   s2_images?: { pre: { url: string; date: string }; post: { url: string; date: string }; bounds: [number, number, number, number] } | null
   flowdir?: { west: number; north: number; step: number; w: number; h: number; dr: number[]; dc: number[]; dir_b64: string } | null
-  debris?: { summary: { km2: number; damage: Record<'buildings' | 'roads' | 'bridges', { total: number; hit: number }>; cutoff: Record<string, number> }; cutoff: { settlements: Settlement[] }; polygons: FC; buildings_hit: FC; roads: FC } | null
+  debris?: { summary: { km2: number; damage: Record<'buildings' | 'roads' | 'bridges', { total: number; hit: number }>; cutoff: Record<string, number> }; cutoff: { settlements: Settlement[] }; polygons: FC; buildings_hit: FC; roads: FC; cut_segments?: FC | null } | null
 }
 
 maplibregl.setWorkerUrl(workerUrl)   // as in FloodMap: the page can be opened directly
@@ -70,7 +70,7 @@ function alongPath(d: SpaceData, pts: number[][]): Trace['hits'] {
 const GROUPS = [
   { key: 'water', label: 'Floodwater (AI + Sentinel-2)', color: '#1e90ff', ids: ['flood'] },
   { key: 'debris', label: 'Debris (radar + Sentinel-2)', color: '#b5651d', ids: ['deb', 'deb-conf'] },
-  { key: 'objects', label: 'Damaged buildings, roads, bridges', color: '#ff2d2d', ids: ['bld', 'bld-line', 'roads', 'bridges', 'deb-bld', 'deb-roads'] },
+  { key: 'objects', label: 'Damaged buildings, roads, bridges', color: '#ff2d2d', ids: ['bld', 'bld-line', 'roads', 'cut', 'bridges', 'deb-bld', 'deb-roads'] },
   { key: 'places', label: 'Settlements (pink = cut off)', color: '#e0115f', ids: ['pl', 'pl-txt'] },
   { key: 'landing', label: 'Helicopter landing candidates', color: '#ffffff', ids: ['lz', 'lz-txt'] },
   { key: 'path', label: 'Traced flood path', color: '#00e5ff', ids: ['trace', 'trace-glow'] },
@@ -146,7 +146,7 @@ function SpaceMap({ d, tracing, onTrace, vis, s2t }: { d: SpaceData; tracing: bo
         m.addLayer({ id: 'deb', type: 'fill', source: 'deb', paint: { 'fill-color': '#b5651d', 'fill-opacity': 0.45 } })
         m.addSource('deb-bld', { type: 'geojson', data: d.debris.buildings_hit })
         m.addLayer({ id: 'deb-bld', type: 'line', source: 'deb-bld', paint: { 'line-color': '#ffb347', 'line-width': 1.5 } })
-        m.addSource('deb-roads', { type: 'geojson', data: d.debris.roads })
+        m.addSource('deb-roads', { type: 'geojson', data: d.debris.cut_segments ?? d.debris.roads })
         m.addLayer({ id: 'deb-roads', type: 'line', source: 'deb-roads', paint: { 'line-color': '#ffb347', 'line-width': 2.5, 'line-dasharray': [2, 1.5] } })
       }
       if (d.debris_conf) {
@@ -156,9 +156,13 @@ function SpaceMap({ d, tracing, onTrace, vis, s2t }: { d: SpaceData; tracing: bo
       m.addSource('flood', { type: 'geojson', data: d.layers.flood })
       m.addLayer({ id: 'flood', type: 'fill', source: 'flood', paint: { 'fill-color': ['match', ['get', 'class'], 'flood', '#1e90ff', '#0b3d91'], 'fill-opacity': 0.6 } })
       m.addSource('roads', { type: 'geojson', data: d.layers.roads })
-      m.addLayer({ id: 'roads', type: 'line', source: 'roads', paint: { 'line-color': ['case', ['get', 'hit'], '#ff9f1c', '#ffffff'], 'line-width': ['case', ['get', 'hit'], 3, 1], 'line-opacity': ['case', ['get', 'hit'], 1, 0.45] } })
+      m.addLayer({ id: 'roads', type: 'line', source: 'roads', paint: { 'line-color': '#ffffff', 'line-width': 1, 'line-opacity': 0.45 } })
+      if (d.layers.cut_segments) {   // only the stretches that touch floodwater are cut (segment-level damage)
+        m.addSource('cut', { type: 'geojson', data: d.layers.cut_segments })
+        m.addLayer({ id: 'cut', type: 'line', source: 'cut', paint: { 'line-color': '#ff9f1c', 'line-width': 4 } })
+      }
       m.addSource('bridges', { type: 'geojson', data: d.layers.bridges })
-      m.addLayer({ id: 'bridges', type: 'line', source: 'bridges', paint: { 'line-color': ['case', ['get', 'hit'], '#e0115f', '#f5d547'], 'line-width': 4 } })
+      m.addLayer({ id: 'bridges', type: 'line', source: 'bridges', paint: { 'line-color': ['case', ['get', 'hit'], '#e0115f', '#f5d547'], 'line-width': ['case', ['get', 'hit'], 5, 2.5] } })
       m.addSource('bld', { type: 'geojson', data: d.layers.buildings_hit })
       m.addLayer({ id: 'bld', type: 'fill', source: 'bld', paint: { 'fill-color': '#ff2d2d', 'fill-opacity': 0.9 } })
       m.addLayer({ id: 'bld-line', type: 'line', source: 'bld', paint: { 'line-color': '#ffffff', 'line-width': 1 } })
@@ -307,7 +311,7 @@ export default function Space() {
         <Stat label="Cut off if debris blocks roads" value={d.debris.summary.cutoff['CUT OFF'] ?? 0} sub={d.debris.cutoff.settlements.filter(s => s.status === 'CUT OFF' && s.name).map(s => s.name).join(', ') || '—'} color="#e0115f" />
       </div>}
 
-      <Panel title={`Map · event ${d.event_utc.slice(0, 16)} UTC · blue = floodwater (AI + Sentinel-2), brown = debris (radar + Sentinel-2), amber = objects on debris, red/orange = objects in floodwater, dots = settlements`} className="mt-4">
+      <Panel title={`Map · event ${d.event_utc.slice(0, 16)} UTC · switch layers in the legend · orange = damaged road stretches · click settlements and H for details`} className="mt-4">
         {d.flowdir && <div className="mb-2 flex flex-wrap items-center gap-3 text-sm">
           <button onClick={() => setTracing(t => !t)} className={`rounded-md border px-3 py-1 ${tracing ? 'border-[#00e5ff] bg-[#00e5ff]/15 text-[#00e5ff]' : 'border-line text-ink/80'}`}>
             {tracing ? 'Tracing: click any upstream point' : 'Trace a flood path'}</button>
@@ -337,8 +341,8 @@ export default function Space() {
           <button className="rounded-md border border-line px-2 py-1 hover:border-brand" onClick={() => download(`${d.name}_damaged_objects.geojson`, { type: 'FeatureCollection', features: [
             ...d.layers.buildings_hit.features.map(f => ({ ...f, properties: { ...f.properties, layer: 'building', by: 'water' } })),
             ...(d.debris?.buildings_hit.features ?? []).map(f => ({ ...f, properties: { ...f.properties, layer: 'building', by: 'debris' } })),
-            ...d.layers.roads.features.filter(f => (f.properties as Record<string, unknown>)?.hit).map(f => ({ ...f, properties: { ...f.properties, layer: 'road', by: 'water' } })),
-            ...(d.debris?.roads.features ?? []).map(f => ({ ...f, properties: { ...f.properties, layer: 'road', by: 'debris' } })),
+            ...(d.layers.cut_segments ?? d.layers.roads).features.map(f => ({ ...f, properties: { ...f.properties, layer: 'damaged road stretch', by: 'water' } })),
+            ...(d.debris?.cut_segments ?? d.debris?.roads)?.features.map(f => ({ ...f, properties: { ...f.properties, layer: 'damaged road stretch', by: 'debris' } })) ?? [],
             ...d.layers.bridges.features.filter(f => (f.properties as Record<string, unknown>)?.hit).map(f => ({ ...f, properties: { ...f.properties, layer: 'bridge', by: 'water' } }))] })}>Damaged objects</button>
           <button className="rounded-md border border-line px-2 py-1 hover:border-brand" onClick={() => download(`${d.name}_settlements.geojson`, { type: 'FeatureCollection', features: [
             ...d.cutoff.settlements.map(r => { const z = d.rescue?.settlements.find(x => x.name === r.name); return { type: 'Feature', geometry: { type: 'Point', coordinates: [r.lon, r.lat] }, properties: { ...r, buildings: z?.buildings ?? null, cut_off_by: z?.by ?? [] } } }),

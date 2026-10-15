@@ -28,8 +28,8 @@
       "lat": 31.03691,
       "snap_m": 41,
       "before_km": 9.82,
-      "after_km": null,
-      "status": "CUT OFF"
+      "after_km": 9.82,
+      "status": "connected"
     },
     {
       "name": "Jhala",
@@ -68,8 +68,8 @@
       "lat": 31.03492,
       "snap_m": 126,
       "before_km": 6.25,
-      "after_km": null,
-      "status": "CUT OFF"
+      "after_km": 6.25,
+      "status": "connected"
     },
     {
       "name": "Halunga",
@@ -78,8 +78,8 @@
       "lat": 31.03344,
       "snap_m": 230,
       "before_km": 7.65,
-      "after_km": null,
-      "status": "CUT OFF"
+      "after_km": 7.65,
+      "status": "connected"
     },
     {
       "name": "Bagori",
@@ -98,8 +98,8 @@
       "lat": 31.02672,
       "snap_m": 20,
       "before_km": 4.34,
-      "after_km": null,
-      "status": "CUT OFF"
+      "after_km": 4.34,
+      "status": "connected"
     },
     {
       "name": "Lanka",
@@ -108,8 +108,8 @@
       "lat": 31.03024,
       "snap_m": 43,
       "before_km": 5.43,
-      "after_km": null,
-      "status": "CUT OFF"
+      "after_km": 5.43,
+      "status": "connected"
     },
     {
       "name": "Dharali",
@@ -142,11 +142,11 @@
       "status": "not connected before"
     }
   ],
-  "removed_road_ids": 27,
+  "removed_segments": 85,
   "counts": {
-    "CUT OFF": 6,
+    "CUT OFF": 1,
     "longer route": 0,
-    "connected": 4,
+    "connected": 9,
     "not connected before": 4
   }
 }

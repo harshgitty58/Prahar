@@ -82,6 +82,12 @@ def run(name: str, bbox: tuple, event: pd.Timestamp, res=10.0) -> dict:
     (out / "osm_before.json").write_text(json.dumps(osm), encoding="utf-8")
     perm = flood.permanent_water(osm["water"], grid)
     corr = flood.corridor(osm["waterways"], grid)
+    chan = np.zeros((grid.height, grid.width), bool)       # the mapped drainage (pre-event OSM waterways)
+    ww = [transform_geom("EPSG:4326", grid.crs, f["geometry"]) for f in osm["waterways"].get("features", []) if f.get("geometry")]
+    if ww:
+        chan = rasterize([(g, 1) for g in ww], out_shape=chan.shape, transform=grid.transform, all_touched=True, dtype="uint8").astype(bool)
+    low = flood.hand(np.nan_to_num(z, nan=np.nanmax(z)), chan | perm) <= flood.HAND_MAX_M   # Twele et al. 2016 HAND rule
+    save_tif(out / "hand_ok.tif", low.astype("uint8"), grid)
     cls, stats = flood.detect(pairs_db, z, perm, grid, [(p["after"]["geometry"], p["state"]) for p in pairs], corr)
     save_tif(out / "flood_class.tif", cls, grid)
     save_tif(out / "dem.tif", z.astype("float32"), grid)
@@ -99,7 +105,7 @@ def run(name: str, bbox: tuple, event: pd.Timestamp, res=10.0) -> dict:
             pre2 = (data.s1_db(p["before2"], grid, "vv"), data.s1_db(p["before2"], grid, "vh"))
             flood_any |= ai.predict(post, pre1, pre2, z) == 2
         stats["ai_flood_km2_all"] = round(float(flood_any.sum() * res * res / 1e6), 3)
-        flood_any &= corr & ~perm
+        flood_any = flood.drop_small(flood_any & corr & low & ~perm)
         cls = np.where(perm, flood.PERMANENT, np.where(flood_any, flood.WATER, flood.NONE)).astype("uint8")
         stats["ai_flood_km2_corridor"] = round(float(flood_any.sum() * res * res / 1e6), 3)
         method = "AI U-Net (Kuro Siwo) within the 200 m river corridor"
@@ -115,7 +121,7 @@ def run(name: str, bbox: tuple, event: pd.Timestamp, res=10.0) -> dict:
     print("S2:", s2["meta"])
     if s2["meta"].get("used"):
         save_tif(out / "s2_clear.tif", s2["clear"].astype("uint8"), grid)
-        s2w = s2["new_water"] & corr & ~perm
+        s2w = flood.drop_small(s2["new_water"] & corr & low & ~perm)
         stats["s2_new_water_km2"] = round(float(s2w.sum() * res * res / 1e6), 3)
         stats["s2_added_km2"] = round(float((s2w & (cls == flood.NONE)).sum() * res * res / 1e6), 3)
         cls = np.where((cls == flood.NONE) & s2w, flood.WATER, cls).astype("uint8")
@@ -133,8 +139,8 @@ def run(name: str, bbox: tuple, event: pd.Timestamp, res=10.0) -> dict:
     if rule_p.exists():
         with rasterio.open(rule_p) as src:
             rule = src.read(1)
-        radar_d = rule == flood.DEBRIS
-        opt_d = (s2["debris"] & corr) if s2["meta"].get("used") else np.zeros_like(radar_d)
+        radar_d = flood.drop_small(rule == flood.DEBRIS)   # HAND not applied: debris flows run high on gorge walls
+        opt_d = flood.drop_small(s2["debris"] & corr) if s2["meta"].get("used") else np.zeros_like(radar_d)
         # confidence: 1 = radar only, 2 = optical only, 3 = radar AND optical agree
         conf = (radar_d * 1 + opt_d * 2).astype("uint8")
         save_tif(out / "debris_conf.tif", conf, grid)
@@ -151,7 +157,7 @@ def run(name: str, bbox: tuple, event: pd.Timestamp, res=10.0) -> dict:
                                   "both_km2": round(float((radar_d & opt_d).sum() * res * res / 1e6), 3)}
     (out / "cutoff.json").write_text(json.dumps(cut, indent=2), encoding="utf-8")
     summary["rescue"] = rescue_step(out, grid, osm, z, cls, perm, deb if rule_p.exists() else None, cut, cut_d if rule_p.exists() else {})
-    summary |= {"damage": dmg["counts"], "cutoff": {k: cut.get(k) for k in ("destination", "counts", "removed_road_ids")}}
+    summary |= {"damage": dmg["counts"], "cutoff": {k: cut.get(k) for k in ("destination", "counts", "removed_segments")}}
     summary["runtime_s"] = round(time.time() - t_start, 1)
     (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print(json.dumps({"flood": summary["flood"], "damage": summary["damage"], "cutoff": summary["cutoff"]}, indent=1))

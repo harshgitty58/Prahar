@@ -60,8 +60,8 @@
     "corridor_km2": 42.91,
     "ai_flood_km2_all": 0.001,
     "ai_flood_km2_corridor": 0.0,
-    "s2_new_water_km2": 2.213,
-    "s2_added_km2": 2.213
+    "s2_new_water_km2": 0.677,
+    "s2_added_km2": 0.677
   },
   "method": "Space mode \u2014 \"Where did the flood hit?\" Sentinel-1 change detection after the UN-SPIDER Recommended Practice.",
   "s2": {
@@ -74,19 +74,19 @@
   },
   "detector": "AI U-Net (Kuro Siwo) within the 200 m river corridor + Sentinel-2 MNDWI new water where clear",
   "debris_rule": {
-    "km2": 2.023,
+    "km2": 1.981,
     "damage": {
       "buildings": {
         "total": 3074,
-        "hit": 431
+        "hit": 422
       },
       "roads": {
         "total": 389,
-        "hit": 63
+        "hit": 54
       },
       "bridges": {
         "total": 32,
-        "hit": 11
+        "hit": 8
       }
     },
     "cutoff": {
@@ -97,8 +97,8 @@
     },
     "note": "rule-based radar change (low confidence) plus Sentinel-2 vegetated-to-barren change where clear",
     "radar_km2": 0.728,
-    "optical_km2": 1.349,
-    "both_km2": 0.053
+    "optical_km2": 1.306,
+    "both_km2": 0.052
   },
   "rescue": {
     "cut_off_any": 21,
@@ -129,15 +129,15 @@
   "damage": {
     "buildings": {
       "total": 3074,
-      "hit": 54
+      "hit": 27
     },
     "roads": {
       "total": 389,
-      "hit": 76
+      "hit": 42
     },
     "bridges": {
       "total": 32,
-      "hit": 13
+      "hit": 9
     }
   },
   "cutoff": {
@@ -148,7 +148,7 @@
       "connected": 2,
       "not connected before": 0
     },
-    "removed_road_ids": 76
+    "removed_segments": 143
   },
-  "runtime_s": 419.9
+  "runtime_s": 461.9
 }

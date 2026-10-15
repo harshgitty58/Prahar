@@ -47,6 +47,18 @@ def smooth(db: np.ndarray, res: float) -> np.ndarray:
         return np.where(den > 0, num / den, np.nan).astype("float32")
 
 
+HAND_MAX_M = 15.0   # Twele et al. (2016), Int. J. Remote Sensing 37(13): pixels > 15 m above the nearest drainage excluded
+
+
+def hand(dem: np.ndarray, drainage: np.ndarray) -> np.ndarray:
+    """Height Above Nearest Drainage (approximation: nearest drainage pixel by distance, not along the flow path).
+    drainage = pre-event OSM waterways + permanent water rasterised on the grid."""
+    if not drainage.any():
+        return np.zeros_like(dem)
+    _, (ri, ci) = ndimage.distance_transform_edt(~drainage, return_indices=True)
+    return dem - dem[ri, ci]
+
+
 def drop_small(mask: np.ndarray) -> np.ndarray:
     lab, n = ndimage.label(mask, structure=np.ones((3, 3)))
     if n == 0:
